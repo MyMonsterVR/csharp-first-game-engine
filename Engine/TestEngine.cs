@@ -1,19 +1,22 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Ribbon;
 using System.Windows.Input;
+using Application = System.Windows.Forms.Application;
+using Size = System.Drawing.Size;
 
 namespace TestEngine;
 
 public sealed class Canvas : Form
 {
     public bool isInFocus = false;
-    
+
     public Canvas()
     {
         DoubleBuffered = true;
         FormBorderStyle = FormBorderStyle.FixedSingle;
     }
-    
+
     protected override void OnActivated(EventArgs e)
     {
         Debug.Log("Got Focus");
@@ -35,7 +38,7 @@ public abstract class TestEngine
     public static Vector ScreenSize = new(1920, 1080);
     private string Title = "TestEngine";
 
-    private Canvas Window = null;
+    private static Canvas Window = null;
     private Thread gameLoopThread = null;
 
     protected Debug Debug = new();
@@ -46,9 +49,11 @@ public abstract class TestEngine
 
     protected bool canUpdate = true;
     
-    protected Vector camPos = Vector.Zero();
+    protected static Vector camPos = Vector.Zero();
+    protected static Vector camZoom = new Vector(1,1);
+    protected static float camRot = 0;
 
-    private Spritebatch _spritebatch;
+    private static Spritebatch _spritebatch;
     
     public static string assetsFolder = Path.GetFullPath(@"..\..\..\Assets\");
     public static string resourceFolder = Path.Combine(assetsFolder, "Resources");
@@ -69,7 +74,7 @@ public abstract class TestEngine
         Window.Text = Title;
         Window.Paint += Renderer;
         Window.Click += OnClick;
-        
+        Window.FormClosed += OnClose;
         gameLoopThread = new Thread(GameLoop);
         gameLoopThread.SetApartmentState(ApartmentState.STA);
         gameLoopThread.IsBackground = true;
@@ -77,6 +82,12 @@ public abstract class TestEngine
         Application.Run(Window);
     }
 
+    public static void UpdateRender()
+    {
+        Window.Paint += Renderer;
+        Window.Refresh();
+    }
+    
     public static void RegisterText(Text2D t) => TextRenderStack.Add(t);
     
     public static void RemoveText(Text2D t) => TextRenderStack.Remove(t);
@@ -140,30 +151,29 @@ public abstract class TestEngine
         }
     }
 
-    private List<Shape> _shapeRender;
-    private List<Text2D> _textRender;
+    private static List<Shape> _shapeRender;
+    private static List<Text2D> _textRender;
 
-    private void Renderer(object? sender, PaintEventArgs e)
+    private static void Renderer(object? sender, PaintEventArgs e)
     {
         Graphics g = e.Graphics;
         _spritebatch = new Spritebatch(Window.Size, g);
         _spritebatch.Begin(Color.Green);
         g.TranslateTransform((float)camPos.X,(float)camPos.Y);
+        g.ScaleTransform((float)camZoom.X, (float)camZoom.Y);
+        g.RotateTransform(camRot);
+        
         _shapeRender = new List<Shape>(ShapeRenderStack);
         foreach (Shape s in _shapeRender)
         {
             if (s.type == Type.Quad)
             {
                 _spritebatch.drawRectangle(s);
-                /*g.FillRectangle(new SolidBrush(s.color), (int)s.Position!.X, (int)s.Position.Y, (int)s.Size.X,
-                    (int)s.Size.Y);*/
             }
 
             if (s.type == Type.Sprite)
             {
                 _spritebatch.Draw(s);
-                /*g.DrawImage(s.image, new Rectangle((int)s.Position!.X, (int)s.Position.Y,
-                    (int)s.Size.X, (int)s.Size.Y));*/
             }
         }
         
@@ -178,8 +188,13 @@ public abstract class TestEngine
         
     }
 
-    public virtual void OnClick(object sender, EventArgs e) {}
+    protected virtual void OnClose(object? sender, FormClosedEventArgs e)
+    {
+        Environment.Exit(0);
+    }
 
-    public abstract void OnLoad();
-    public abstract void OnUpdate();
+    protected virtual void OnClick(object sender, EventArgs e) {}
+
+    protected abstract void OnLoad();
+    protected abstract void OnUpdate();
 }

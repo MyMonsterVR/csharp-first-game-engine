@@ -7,9 +7,9 @@ public class Shape
     public Color color = Color.Aqua;
     public string? Tag;
     public TestEngine.Type type;
-    public Image image;
+    public Image Sprite;
 
-    public Shape(Vector? position, Vector size, Color color, string? tag, TestEngine.Type type, Image image)
+    public Shape(Vector? position, Vector size, Color color, string? tag, TestEngine.Type type, Image sprite)
     {
         Position = position;
         Size = size;
@@ -21,10 +21,10 @@ public class Shape
 
         using (Graphics g = Graphics.FromImage(b))
         {
-            g.DrawImage(image, 0, 0, (int)size.X, (int)size.Y);
+            g.DrawImage(sprite, 0, 0, (int)size.X, (int)size.Y);
         }
 
-        this.image = b;
+        Sprite = b;
 
         TestEngine.RegisterShape(this);
     }
@@ -36,9 +36,10 @@ public class Shape
         this.color = color;
         Tag = tag;
         this.type = type;
-        
+
         TestEngine.RegisterShape(this);
     }
+
 
     public void Destroy()
     {
@@ -49,7 +50,7 @@ public class Shape
         TestEngine.RemoveShape(this);
     }
 
-    public bool IsCollided(Shape shape, string tag)
+    public Shape IsCollided(Shape shape, string tag)
     {
         List<Shape> p = TestEngine.GetShapes(tag);
         foreach (Shape s in p)
@@ -60,7 +61,7 @@ public class Shape
                 s.Position.Y < shape.Position.Y + shape.Size.Y &&
                 s.Position.Y + s.Size.Y > shape.Position.Y)
             {
-                return true;
+                return s;
             }
 
             /*if (s.Position.Y + s.Size.Y > shape.Position.Y && shape.Position.Y + shape.Size.Y > s.Position.Y &&
@@ -70,40 +71,36 @@ public class Shape
             }*/
         }
 
-        return false;
+        return null;
     }
-    
+
     // Get the center of the shape
     public Vector GetCenter()
     {
         return new Vector(Position.X + Size.X / 2, Position.Y + Size.Y / 2);
     }
-    
+
     // Get shape's bounding box
     public Rectangle GetBoundingBox()
     {
         return new Rectangle((int)Position.X, (int)Position.Y, (int)Size.X, (int)Size.Y);
     }
-    
+
     // Get radius of the shape
     public float GetRadius()
     {
         return (float)Size.X / 2;
     }
-    
+
     // Get Width
     public float GetWidth()
     {
         return (float)Size.X;
     }
-    
+
     // Get Height
     public float GetHeight()
     {
         return (float)Size.Y;
     }
-    
-
-
-
 }

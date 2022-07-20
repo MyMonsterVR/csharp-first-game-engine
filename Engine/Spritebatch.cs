@@ -25,7 +25,7 @@ public class Spritebatch
 
     public void Draw(Shape s)
     {
-        bfgfx.Graphics.DrawImageUnscaled(s.image, new Rectangle((int)s.Position!.X, (int)s.Position.Y,
+        bfgfx.Graphics.DrawImageUnscaled(s.Sprite, new Rectangle((int)s.Position!.X, (int)s.Position.Y,
             (int)s.Size.X, (int)s.Size.Y));
     }
 
