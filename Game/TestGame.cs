@@ -221,7 +221,7 @@ public class TestGame : TestEngine
 
         if (_player.IsCollided(_player, "Wall"))
         {
-            canUpdate = false;
+            //canUpdate = false;
             // Get colliding wall
             Shape wall = Vector.GetClosestShape(_player.Position, "Wall", _player);
             //Debug.Log(wall.GetCenter().X + " " + wall.GetCenter().Y);
