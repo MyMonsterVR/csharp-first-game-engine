@@ -1,23 +1,26 @@
 ﻿namespace TestEngine;
 
-public class Room
+public class Room : TestGame
 {
-    public static List<string[,]> rooms = new List<string[,]>();
+    private static List<string[,]> _rooms = new List<string[,]>();
     public static int CurrentRoom = 0;
     
     public static void AddRoom(string[,] room)
     {
-        rooms.Add(room);
+        _rooms.Add(room);
     }
 
     public static string[,] GetCurrentRooms()
     {
-        return rooms[CurrentRoom];
+        return _rooms[CurrentRoom];
     }
     
     public static void NextRoom()
     {
-        CurrentRoom++;
+        if (!loadingMap)
+        {
+            CurrentRoom++;
+        }
     }
 
     public static List<Vector?> GetTiles(string tile)

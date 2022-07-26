@@ -41,13 +41,13 @@ public abstract class TestEngine
     private static Canvas Window = null;
     private Thread gameLoopThread = null;
 
-    protected Debug Debug = new();
+    protected static Debug Debug = new();
 
-    private static List<Shape> ShapeRenderStack = new();
+    protected static List<Shape> ShapeRenderStack = new();
     private static List<Text2D> TextRenderStack = new();
     public static bool W, A, S, D;
 
-    protected bool canUpdate = true;
+    protected static bool canUpdate = true;
     
     protected static Vector camPos = Vector.Zero();
     protected static Vector camZoom = new Vector(1,1);
@@ -84,7 +84,6 @@ public abstract class TestEngine
 
     public static void UpdateRender()
     {
-        Window.Paint += Renderer;
         Window.Refresh();
     }
     
@@ -100,6 +99,7 @@ public abstract class TestEngine
     public static void RemoveShape(Shape s)
     {
         ShapeRenderStack.Remove(s);
+        global::TestEngine.Debug.Log("Removed Shape");
     }
 
     public static List<Shape> GetShapes(string tag)
@@ -125,28 +125,31 @@ public abstract class TestEngine
             {
                 if (Window.isInFocus)
                 {
-                    W = (Keyboard.GetKeyStates(Key.W) & KeyStates.Down) > 0;
-                    A = (Keyboard.GetKeyStates(Key.A) & KeyStates.Down) > 0;
-                    S = (Keyboard.GetKeyStates(Key.S) & KeyStates.Down) > 0;
-                    D = (Keyboard.GetKeyStates(Key.D) & KeyStates.Down) > 0;
-                }
-                else
-                {
-                    W = false;
-                    A = false;
-                    S = false;
-                    D = false;
+                    if (Window.isInFocus)
+                    {
+                        W = (Keyboard.GetKeyStates(Key.W) & KeyStates.Down) > 0;
+                        A = (Keyboard.GetKeyStates(Key.A) & KeyStates.Down) > 0;
+                        S = (Keyboard.GetKeyStates(Key.S) & KeyStates.Down) > 0;
+                        D = (Keyboard.GetKeyStates(Key.D) & KeyStates.Down) > 0;
+                    }
+                    else
+                    {
+                        W = false;
+                        A = false;
+                        S = false;
+                        D = false;
+                    }
+
+                    if (canUpdate)
+                        Window.BeginInvoke((MethodInvoker)delegate { Window.Refresh(); });
+                    OnUpdate();
                 }
 
-                if(canUpdate)
-                    Window.BeginInvoke((MethodInvoker)delegate { Window.Refresh(); });
-                OnUpdate();
                 Thread.Sleep(1000 / 60);
-                
             }
             catch (Exception e)
             {
-                //Console.WriteLine(e.Message);
+                // Debug.Log(e.StackTrace?.ToString());
             }
         }
     }
@@ -197,4 +200,8 @@ public abstract class TestEngine
 
     protected abstract void OnLoad();
     protected abstract void OnUpdate();
+    protected abstract void LoadMap();
+    protected abstract void PlaceSprites();
+
+
 }

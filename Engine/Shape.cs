@@ -8,14 +8,16 @@ public class Shape
     public string? Tag;
     public TestEngine.Type type;
     public Image Sprite;
+    public Vector CollisionSize { get; set; }
 
-    public Shape(Vector? position, Vector size, Color color, string? tag, TestEngine.Type type, Image sprite)
+    public Shape(Vector? position, Vector size, Vector collisionSize, Color color, string? tag, TestEngine.Type type, Image sprite)
     {
         Position = position;
         Size = size;
         this.color = color;
         Tag = tag;
         this.type = type;
+        CollisionSize = collisionSize;
 
         Bitmap b = new Bitmap((int)size.X, (int)size.Y);
 
@@ -29,13 +31,14 @@ public class Shape
         TestEngine.RegisterShape(this);
     }
     
-    public Shape(Vector? position, Vector size, Color color, string? tag, TestEngine.Type type)
+    public Shape(Vector? position, Vector size, Vector collisionSize, Color color, string? tag, TestEngine.Type type)
     {
         Position = position;
         Size = size;
         this.color = color;
         Tag = tag;
         this.type = type;
+        CollisionSize = collisionSize;
 
         TestEngine.RegisterShape(this);
     }
@@ -56,10 +59,10 @@ public class Shape
         foreach (Shape s in p)
         {
             // check if the shapes are colliding
-            if (s.Position.X < shape.Position.X + shape.Size.X &&
-                s.Position.X + s.Size.X > shape.Position.X &&
-                s.Position.Y < shape.Position.Y + shape.Size.Y &&
-                s.Position.Y + s.Size.Y > shape.Position.Y)
+            if (s.Position.X < shape.Position.X + shape.CollisionSize.X &&
+                s.Position.X + s.CollisionSize.X > shape.Position.X &&
+                s.Position.Y < shape.Position.Y + shape.CollisionSize.Y &&
+                s.Position.Y + s.CollisionSize.Y > shape.Position.Y)
             {
                 return s;
             }
