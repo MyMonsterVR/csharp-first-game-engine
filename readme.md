@@ -6,6 +6,8 @@ A brief description of what this project does and who it's for
 
 - Basic 2D render engine
 - Collisions
+- Multiple rooms
+
 
 ## ToDo
 - [x] Basic rendering
