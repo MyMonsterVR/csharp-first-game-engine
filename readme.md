@@ -24,3 +24,6 @@ A brief description of what this project does and who it's for
 
 - [@MyMonsterVR](https://www.github.com/MyMonsterVR)
 
+## Other related stuff
+
+![Last Commit](https://img.shields.io/github/last-commit/mymonstervr/csharp-first-game-engine?style=for-the-badge)
