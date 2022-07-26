@@ -16,7 +16,7 @@ A brief description of what this project does and who it's for
 
 ## Example game made with the engine
 
-https://gyazo.com/16a280adb5d14a511a8e7360ebed7d50
+![Collision and room](https://gyazo.com/16a280adb5d14a511a8e7360ebed7d50)
 
 ## Authors
 
