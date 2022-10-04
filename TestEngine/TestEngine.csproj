@@ -10,6 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
       <PackageReference Include="PresentationFramework" Version="4.6.0" />
       <PackageReference Include="WindowsInput" Version="6.4.0" />
     </ItemGroup>

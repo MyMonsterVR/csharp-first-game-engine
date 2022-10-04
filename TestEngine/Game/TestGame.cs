@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
+using TestEngine.Game.Scripts;
 using TestEngine.Scripts;
 
 namespace TestEngine;
@@ -27,6 +28,8 @@ public class TestGame : TestEngine
 
     public static Bitmap enemySprite = new Bitmap(ResourceFolder + @"\player_5.png");
 
+    public static Bitmap playerSprite = new Bitmap(ResourceFolder + @"\player_1.png");
+
     private static Text2D test;
 
     private Shape[] enemies = new Shape[10];
@@ -35,7 +38,7 @@ public class TestGame : TestEngine
 
     public static bool loadingMap;
 
-    private static readonly string mapPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\map.txt";
+    private static readonly string mapPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\map.json";
 
     public TestGame() : base(new Vector(815, 555), "Test Engine")
     {
@@ -51,14 +54,10 @@ public class TestGame : TestEngine
     protected override void OnLoad()
     {
         Console.WriteLine("Loading map...");
-        mapData = new Map(mapPath);
-        /*mapData.GenerateAndSave(Window.Height, Window.Height, Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\map.txt");
-        mapData.Load(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\map.txt");
-        mapData.Draw(40);*/
-        
-        //mapData.Generate();
-        //mapData.Save(mapPath);
-        mapData.Draw(mapPath);
+        var map = new MapLoader(mapPath);
+        map.DrawMap();
+        //t.PrintMapData();
+        //mapData.LoadJson(mapPath);
 
         /*NewMap(0);
         test = new Text2D(new Vector(0, 0), 16, $"Level: {Room.CurrentRoom}", "Arial Black", Color.White);

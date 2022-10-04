@@ -1,13 +1,16 @@
-﻿namespace TestEngine.Scripts;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace TestEngine.Scripts;
 
 public class Map
 {
     // Map size
-    public int Width { get; set; }
-    public int Height { get; set; }
+    private int Width { get; set; }
+    private int Height { get; set; }
 
     // Map data
-    public int[,] Data { get; set; }
+    private int[,] Data { get; set; }
 
     // Map constructor
     public Map(int width, int height)
@@ -27,15 +30,18 @@ public class Map
     }
 
     // Get map data
-    public int Get(int x, int y)
+    private int Get(int x, int y)
     {
         return Data[x, y];
     }
 
     // Set map data
-    public void Set(int x, int y, int value)
+    private void Set(int x, int y, int value)
     {
-        Data[x, y] = value;
+        if (x != null && y != null && value != null)
+        {
+            Data[x, y] = value;
+        }
     }
 
     // Generate map data
@@ -116,113 +122,147 @@ public class Map
         }
     }
 
+    // load map data from json file
+    private void LoadJson(string path)
+    {
+        // read json file
+        string json = File.ReadAllText(path);
+        // parse json
+        JObject mapdata = JObject.Parse(json);
+        // use mapdata to access mapData in json file
+        // find properties containing "layer" and ends with a number under the "mapData" property
+        var layers = mapdata["mapData"].Children().Where(c => c.Path.Contains("layer"));
+        // loop through each layer and get "layerData" property
+        int x = 0;
+        int y = 0;
+        int value = 0;
+        foreach (var layer in layers.Children())
+        {
+            var layerData = layer["mapDesign"];
+            // loop through each layerData and get the value
+            //if (layer.Path.Contains("layer" + loadedLayer))
+            foreach (var data in layerData)
+            {
+                // foreach value in data array
+                foreach (var check in data)
+                {
+                    switch (check.ToString())
+                    {
+                        case "F":
+                            value = 0;
+                            break;
+                        case "W":
+                            value = 1;
+                            break;
+                        case "P":
+                            value = 2;
+                            break;
+                        case "D":
+                            value = 3;
+                            break;
+                        default:
+                            if (string.IsNullOrWhiteSpace(check.ToString()))
+                            {
+                                value = 9999;
+                            }
+
+                            break;
+                    }
+
+                    // set map data
+                    Set(x, y, (int)value);
+                    // increment x
+                    x++;
+                }
+
+                // increment y
+                if (x >= Width)
+                {
+                    x = 0;
+                    y++;
+                }
+            }
+
+            y = 0;
+        }
+    }
+
     // load map data length and total rows from file and save as a Vector
     private static Vector LoadSize(string path)
     {
-        using (StreamReader reader = new StreamReader(path))
-        {
-            string line;
-            int length = 0;
-            int y = 0;
-            while ((line = reader.ReadLine()) != null)
-            {
-                y++;
-                if(line.Length > length)
-                    length = line.Length;
-            }
-            
-            return new Vector(length, y);
-        }
+        string json = File.ReadAllText(path);
+        // parse json
+        JObject mapdata = JObject.Parse(json);
+        // use mapdata to access mapData in json file
+        // find properties containing "layer" and ends with a number under the "mapData" property
+        var layers = mapdata["mapData"]["options"];
+
+        var rows = Int32.Parse(layers[0]["rows"].ToString());
+        var columns = Int32.Parse(layers[0]["totalColumns"].ToString());
+        var layerAmount = Int32.Parse(layers[0]["totalLayers"].ToString());
+        return new Vector(rows, columns * layerAmount);
     }
-    
 
-    // Draw map
-    // 0 = empty
-    // 1 = wall
-
-    /*public void Draw(string mapPath, int xSize = 44, int ySize=44, int spacing = 6)
-    {
-        // Load map data from file
-        Load(mapPath);
-        // save old position
-        int oldX = 0;
-        int oldY = 0;
-
-        // Draw map
-        for (int y = 0; y < Height; y++)
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                oldX = x * spacing;
-                oldY = y * spacing;
-                // first draw all the empty spaces
-                if (Get(x, y) == 0)
-                {
-                    // Draw empty with new Shape()
-                    new Shape(new Vector(oldX * spacing, oldY * spacing), new Vector(xSize, ySize),
-                        new Vector(xSize, ySize), Color.LawnGreen, "Floor", TestEngine.Type.Quad);
-                }
-
-                if (Get(x, y) == 1)
-                {
-                    new Shape(new Vector(oldX * spacing, oldY * spacing), new Vector(xSize, ySize),
-                        new Vector(xSize, ySize), Color.Green, "Wall", TestEngine.Type.Sprite, TestGame.treeSprite);
-                }
-            }
-        }
-
-        // console output
-        TestEngine.UpdateRender();
-        Console.WriteLine("Map loaded");
-        
-    }*/
-    
     // Draw map
     // first draw all the empty spaces
     // then draw all the walls
-    
-    public void Draw(string mapPath, int xSize = 44, int ySize=44, int spacing = 6)
+
+    public void Draw(string mapPath, int xSize = 44, int ySize = 44, int spacing = 6)
     {
-        Load(mapPath);
+        LoadJson(mapPath);
+        
         // save old position
         int oldX = 0;
         int oldY = 0;
 
-        // Draw map
         for (int y = 0; y < Height; y++)
         {
             for (int x = 0; x < Width; x++)
             {
                 oldX = x * spacing;
                 oldY = y * spacing;
-                // first draw all the empty spaces
+
                 if (Get(x, y) == 0)
                 {
                     new Shape(new Vector(oldX * spacing, oldY * spacing), new Vector(xSize, ySize),
                         new Vector(xSize, ySize), Color.Green, "Floor", TestEngine.Type.Quad);
                 }
-            }
-        }
-        
-        for (int y = 0; y < Height; y++)
-        {
-            for (int x = 0; x < Width; x++)
-            {
-                oldX = x * spacing;
-                oldY = y * spacing;
-                if (Get(x, y) == 1)
+
+                else if (Get(x, y) == 1)
                 {
                     new Shape(new Vector(oldX * spacing, oldY * spacing), new Vector(xSize, ySize),
-                        new Vector(xSize, ySize), Color.DarkGreen, "Wall", TestEngine.Type.Sprite, TestGame.treeSprite);
+                        new Vector(xSize, ySize), Color.Green, "Wall", TestEngine.Type.Sprite,
+                        TestGame.treeSprite);
+                }
+                else if (Get(x, y) == 2)
+                {
+                    Movement._player = new Player(new Vector(oldX * spacing, oldY * spacing),
+                        new Vector(xSize, ySize),
+                        new Vector(xSize, ySize), Color.Green, "Player", TestEngine.Type.Sprite,
+                        TestGame.playerSprite);
+                }
+                else if (Get(x, y) == 3)
+                {
+                    new Shape(new Vector(oldX * spacing, oldY * spacing), new Vector(xSize, ySize),
+                        new Vector(xSize, ySize), Color.Black, "Door", TestEngine.Type.Quad);
                 }
             }
         }
 
+        /*for (int x = 0; x < Width; x++)
+        {
+            oldX = x * spacing;
+            oldY = y * spacing;
+            if (Get(x, y) == 2)
+            {
+                Movement._player = new Player(new Vector(oldX * spacing, oldY * spacing), new Vector(xSize, ySize),
+                    new Vector(xSize, ySize), Color.Blue, "Player", TestEngine.Type.Sprite,
+                    new Bitmap(TestEngine.ResourceFolder + @"\player_1.png"));
+            }
+        }*/
+
         // console output
         TestEngine.UpdateRender();
         Console.WriteLine("Map loaded");
-        
     }
-    
-    
 }

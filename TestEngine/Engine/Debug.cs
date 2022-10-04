@@ -28,7 +28,7 @@ public class Debug
         retryAttempt = 0;
     }
 
-    public void Error<T>(T logThis)
+    public static void Error<T>(T logThis)
     {
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine($"[DEBUG ERROR]: {logThis}");

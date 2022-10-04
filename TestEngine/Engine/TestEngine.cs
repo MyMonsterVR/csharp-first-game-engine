@@ -154,9 +154,18 @@ public abstract class TestEngine
             }
             catch (Exception e)
             {
-                // Debug.Log(e.StackTrace?.ToString());
+                Debug.Error(e.StackTrace?.ToString());
+                return;
             }
         }
+        
+    }
+    
+    public static void SetCamera(Vector pos, Vector zoom, float rot)
+    {
+        camPos = pos;
+        camZoom = zoom;
+        camRot = rot;
     }
 
     private static List<Shape> _shapeRender;
