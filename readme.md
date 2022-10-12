@@ -11,6 +11,7 @@
 - [x] Move between "scenes"
 - [ ] Add buttons
 - [ ] Viewport
+- [x] Custom Map Loader
 
 ## Example game made with the engine
 
